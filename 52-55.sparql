@@ -13,4 +13,4 @@ SELECT DISTINCT ?item ?itemLabel ?term ?termLabel ?constituency ?constituencyLab
  OPTIONAL { ?positionStatement pq:P2937 ?term . }
  SERVICE wikibase:label { bd:serviceParam wikibase:language 'en' }
 }
-ORDER BY ?item
+ORDER BY ?item ?start

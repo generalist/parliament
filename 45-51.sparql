@@ -1,9 +1,12 @@
 SELECT DISTINCT ?item ?itemLabel ?term ?termLabel ?constituency ?constituencyLabel ?party ?partyLabel ?start ?election ?electionLabel ?end ?cause ?causeLabel {
  ?item p:P39 ?positionStatement .
-       { ?positionStatement ps:P39 wd:Q35494253 . } # 51st - 1992-1997
- union { ?positionStatement ps:P39 wd:Q35647955 . } # 50th - 1987-1992
- union { ?positionStatement ps:P39 wd:Q35921591 . } # 49th - 1983-1987
- union { ?positionStatement ps:P39 wd:Q36634044 . } # 48th - 1979-1997
+       { ?positionStatement ps:P39 wd:Q41582627 . } # 51st - 1992-1997
+ union { ?positionStatement ps:P39 wd:Q41582624 . } # 50th - 1987-1992
+ union { ?positionStatement ps:P39 wd:Q41582621 . } # 49th - 1983-1987
+ union { ?positionStatement ps:P39 wd:Q41582619 . } # 48th - 1979-1983
+ union { ?positionStatement ps:P39 wd:Q41582617 . } # 47th - 1974-1979
+ union { ?positionStatement ps:P39 wd:Q41582615 . } # 46th - 1974-1974
+ union { ?positionStatement ps:P39 wd:Q41582612 . } # 45th - 1970-1974
  OPTIONAL { ?positionStatement pq:P768 ?constituency . }
  OPTIONAL { ?positionStatement pq:P4100 ?party . }
  OPTIONAL { ?positionStatement pq:P580 ?start . }

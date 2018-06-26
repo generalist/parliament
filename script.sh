@@ -25,7 +25,7 @@ if [ $? -ne 0 ]
 then
     echo "CONCERN - Changes made to $i" >> working/report
     echo "discrepancies in:" >> working/report
-    echo `diff Q41582555.tsv Q41582555-reference.tsv | cut -f 1 | grep entity | sed 's/<//g' | sed 's/>//g' | sort | uniq ` >> working/report
+    echo `diff $i.tsv $i-reference.tsv | cut -f 1 | grep entity | sed 's/<//g' | sed 's/>//g' | sort | uniq ` >> working/report
 else
     echo "No change to $i" >> working/report
 fi

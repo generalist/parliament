@@ -36,3 +36,15 @@ done
 DATE=$(date +%F)
 
 cp working/report parliaments/report-$DATE
+
+# now this bit runs a report for each edited file to see who's last touched it
+
+rm working/userlog
+
+grep entity parliaments/report-$DATE | cut -c 33- > working/qlist
+
+for k in `cat working/qlist` ; do echo -e $k"\t"`curl "https://www.wikidata.org/w/api.php?action=query&prop=revisions&titles=$k&rvprop=user|timestamp&format=json" | jq . | grep user | cut -f 4 -d \"` >> working/userlog ; done
+
+DATE=$(date +%F)
+
+cp working/userlog parliaments/users-$DATE

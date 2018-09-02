@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# this script runs a comparison check against all Wikidata UK MPs 
+# against a reference set held at https://github.com/generalist/parliament
+# 
+# the main report shows all parliaments with any changes, and each changed MP
+# a secondary report shows the last person to touch any of these
+# and files containing each
+
 
 curl "https://raw.githubusercontent.com/generalist/parliament/master/term-memberships" > working/memberships
 
@@ -9,7 +16,9 @@ for i in `cat working/memberships` ; do
 
 sleep 10s
 
-curl --header "Accept: text/tab-separated-values" https://query.wikidata.org/sparql?query=SELECT%20DISTINCT%20%3Fitem%20%3FitemLabel%20%3Fterm%20%3FtermLabel%20%3Fconstituency%20%3FconstituencyLabel%20%3Fparty%20%3FpartyLabel%20%3Fstart%20%3Felection%20%3FelectionLabel%20%3Fend%20%3Fcause%20%3FcauseLabel%20%7B%0A%20%3Fitem%20p%3AP39%20%3FpositionStatement%20.%0A%20%3FpositionStatement%20ps%3AP39%20wd%3A$i%20.%20%0A%20OPTIONAL%20%7B%20%3FpositionStatement%20pq%3AP768%20%3Fconstituency%20.%20%7D%0A%20OPTIONAL%20%7B%20%3FpositionStatement%20pq%3AP4100%20%3Fparty%20.%20%7D%0A%20OPTIONAL%20%7B%20%3FpositionStatement%20pq%3AP580%20%3Fstart%20.%20%0A%20%20%20%20%20%20%20%20%20%20%20%20FILTER%28%20%21isBLANK%28%3Fstart%29%20%29%20.%20%7D%0A%20OPTIONAL%20%7B%20%3FpositionStatement%20pq%3AP2715%20%3Felection%20.%20%7D%0A%20OPTIONAL%20%7B%20%3FpositionStatement%20pq%3AP582%20%3Fend%20.%20%0A%20%20%20%20%20%20%20%20%20%20%20%20FILTER%28%20%21isBLANK%28%3Fend%29%20%29%20.%20%7D%0A%20OPTIONAL%20%7B%20%3FpositionStatement%20pq%3AP1534%20%3Fcause%20.%20%7D%0A%20OPTIONAL%20%7B%20%3FpositionStatement%20pq%3AP2937%20%3Fterm%20.%20%7D%0A%20SERVICE%20wikibase%3Alabel%20%7B%20bd%3AserviceParam%20wikibase%3Alanguage%20%27en%27%20%7D%0A%7D%0AORDER%20BY%20%3Fitem%20%3Fstart > working/$i.tsv
+curl --header "Accept: text/tab-separated-values" https://query.wikidata.org/sparql?query=SELECT%20DISTINCT%20%3Fitem%20%3FitemLabel%20%3Fterm%20%3FtermLabel%20%3Fconstituency%20%3FconstituencyLabel%20%3Fparty%20%3FpartyLabel%20%3Fstart%20%3Felection%20%3FelectionLabel%20%3Fend%20%3Fcause%20%3FcauseLabel%20%7B%0A%20%3Fitem%20p%3AP39%20%3FpositionStatement%20.%0A%20%3FpositionStatement%20ps%3AP39%20wd%3A$i%20.%20%0A%20OPTIONAL%20%7B%20%3FpositionStatement%20pq%3AP768%20%3Fconstituency%20.%20%7D%0A%20OPTIONAL%20%7B%20%3FpositionStatement%20pq%3AP4100%20%3Fparty%20.%20%7D%0A%20OPTIONAL%20%7B%20%3FpositionStatement%20pq%3AP580%20%3Fstart%20.%20%0A%20%20%20%20%20%20%20%20%20%20%20%20FILTER%28%20%21isBLANK%28%3Fstart%29%20%29%20.%20%7D%0A%20OPTIONAL%20%7B%20%3FpositionStatement%20pq%3AP2715%20%3Felection%20.%20%7D%0A%20OPTIONAL%20%7B%20%3FpositionStatement%20pq%3AP582%20%3Fend%20.%20%0A%20%20%20%20%20%20%20%20%20%20%20%20FILTER%28%20%21isBLANK%28%3Fend%29%20%29%20.%20%7D%0A%20OPTIONAL%20%7B%20%3FpositionStatement%20pq%3AP1534%20%3Fcause%20.%20%7D%0A%20OPTIONAL%20%7B%20%3FpositionStatement%20pq%3AP2937%20%3Fterm%20.%20%7D%0A%20SERVICE%20wikibase%3Alabel%20%7B%20bd%3AserviceParam%20wikibase%3Alanguage%20%27en%27%20%7D%0A%7D%0AORDER%20BY%20%3Fitem%20%3Fstart%20%3Fconstituency > working/$i.tsv
+
+# sort by item, start, constituency - this will ensure standard sorting even if two terms for different seats on the same date
 
 # pull out the bits which are plain text
 
@@ -37,7 +46,7 @@ DATE=$(date +%F)
 
 cp working/report parliaments/report-$DATE
 
-# now this bit runs a report for each edited file to see who's last touched it
+# now this bit runs a report for each edited file to see who's done anything to it
 
 rm working/userlog
 
@@ -48,3 +57,14 @@ for k in `cat working/qlist` ; do echo -e $k"\t"`curl "https://www.wikidata.org/
 DATE=$(date +%F)
 
 cp working/userlog parliaments/users-$DATE
+
+grep CONCERN working/report | cut -c 27- > working/move
+
+rm parliaments/upload/*.tsv
+
+for m in `cat working/move` ; do cp working/$m.tsv parliaments/upload/$m.tsv ; done
+
+# todo list
+# add births-deaths report
+# figure out how to deal with unknown values
+# change reports to use Qids and not item labels in case these get altered(?)
